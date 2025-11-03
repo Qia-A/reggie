@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.entity.User;
 import com.itheima.reggie.service.UserService;
-import com.itheima.reggie.utils.SMSUtils;
 import com.itheima.reggie.utils.ValidateCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -92,4 +91,25 @@ public class UserController {
         return R.error("登录失败");
     }
 
+
+    /**
+     * 更新用户信息（修改用户名）
+     */
+    @PostMapping("/update")
+    public R<String> update(@RequestBody User user, HttpSession session) {
+        Long userId = (Long) session.getAttribute("user");
+        if (userId == null) {
+            return R.error("用户未登录");
+        }
+
+        // 仅允许修改当前登录用户自己的信息
+        user.setId(userId);
+
+        boolean success = userService.updateById(user);
+        if (success) {
+            return R.success("用户信息修改成功");
+        } else {
+            return R.error("用户信息修改失败");
+        }
+    }
 }
