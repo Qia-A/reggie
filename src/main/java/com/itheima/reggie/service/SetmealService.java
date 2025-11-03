@@ -11,11 +11,21 @@ public interface SetmealService extends IService<Setmeal> {
      * 新增套餐，同时需要保存套餐和菜品的关联关系
      * @param setmealDto
      */
-    public void saveWithDish(SetmealDto setmealDto);
+    void saveWithDish(SetmealDto setmealDto);
 
     /**
      * 删除套餐，同时需要删除套餐和菜品的关联数据
      * @param ids
      */
-    public void removeWithDish(List<Long> ids);
+    void removeWithDish(List<Long> ids);
+
+    /**
+     * 根据id查询套餐信息和菜品关系
+     */
+    SetmealDto getByIdWithDish(Long id);
+
+    /**
+     * 修改套餐及其关联菜品
+     */
+    void updateWithDish(SetmealDto setmealDto);
 }

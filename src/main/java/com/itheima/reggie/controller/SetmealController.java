@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * 套餐管理
+ * 功能：新增、修改、删除、分页查询、起售停售
  */
 
 @RestController
@@ -126,4 +127,49 @@ public class SetmealController {
 
         return R.success(setmealService.list(queryWrapper));
     }
+
+    /**
+     * 根据id查询套餐信息和关联的菜品信息，用于修改页面回显
+     */
+    @GetMapping("/{id}")
+    public R<SetmealDto> get(@PathVariable Long id) {
+        SetmealDto setmealDto = setmealService.getByIdWithDish(id);
+        return R.success(setmealDto);
+    }
+
+    /**
+     * 修改套餐
+     */
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto) {
+        log.info("修改套餐信息：{}", setmealDto);
+        setmealService.updateWithDish(setmealDto);
+        return R.success("修改套餐成功");
+    }
+
+    /**
+     * 修改套餐的状态（起售或停售）
+     * @param status 状态值（0：停售，1：起售）
+     * @param ids 套餐ID列表
+     */
+    @PostMapping("/status/{status}")
+    public R<String> updateStatus(@PathVariable Integer status, @RequestParam List<Long> ids) {
+        log.info("修改套餐状态为：{}，套餐id：{}", status, ids);
+
+        // 构造更新条件
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Setmeal::getId, ids);
+
+        // 查询要修改的套餐
+        List<Setmeal> setmeals = setmealService.list(queryWrapper);
+
+        // 更新状态
+        setmeals.forEach(item -> item.setStatus(status));
+
+        // 批量更新
+        setmealService.updateBatchById(setmeals);
+
+        return R.success("套餐状态修改成功");
+    }
+
 }
